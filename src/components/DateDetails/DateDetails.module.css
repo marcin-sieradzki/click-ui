@@ -1,0 +1,21 @@
+/* Keeps the box the Popover trigger wrapper gave the component before. */
+.date-details {
+  /* stylelint-disable-next-line plugin/no-unsupported-browser-features -- `fit-content`
+     keyword on `width` is widely supported on evergreen browsers; Popover's
+     trigger wrapper uses the same value. */
+  width: fit-content;
+}
+
+/* The trigger is a native button that reuses Link for its look, so reset the
+   button chrome. Same focus ring as BaseButton and IconButton. */
+.date-details__trigger {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.date-details__trigger:focus-visible {
+  outline: 2px solid var(--click-global-color-outline-default);
+  outline-offset: 2px;
+}

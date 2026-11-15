@@ -1,6 +1,7 @@
 import { DateDetails } from '@/components/DateDetails';
 import { renderCUI } from '@/utils/test-utils';
 import { fireEvent, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 describe('DateDetails', () => {
   const actualTZ = process.env.TZ;
@@ -45,6 +46,40 @@ describe('DateDetails', () => {
     expect(getByText(/Dec 24, 8:40 a\.m\..*(PST|GMT-8)/)).toBeInTheDocument();
     expect(getByText('Dec 24, 4:40 p.m.')).toBeInTheDocument();
     expect(getByText(String(fiveMinutesAgo.getTime() / 1000))).toBeInTheDocument();
+  });
+
+  it('renders the relative time as a popover button', () => {
+    vi.setSystemTime(new Date('2024-12-24T11:45:00'));
+
+    const { getByRole } = renderCUI(
+      <DateDetails date={new Date('2024-12-24T11:40:00')} />
+    );
+    const trigger = getByRole('button', { name: '5 minutes ago' });
+
+    expect(trigger).toHaveAttribute('type', 'button');
+    expect(trigger).toHaveAttribute('aria-haspopup', 'dialog');
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('opens from the keyboard and returns focus to the trigger on Escape', async () => {
+    vi.setSystemTime(new Date('2024-12-24T11:45:00'));
+    const user = userEvent.setup();
+
+    const { getByRole, getByText, queryByText } = renderCUI(
+      <DateDetails date={new Date('2024-12-24T11:40:00')} />
+    );
+    const trigger = getByRole('button', { name: '5 minutes ago' });
+
+    await user.tab();
+    expect(trigger).toHaveFocus();
+
+    await user.keyboard('{Enter}');
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    expect(getByText('Dec 24, 4:40 p.m.')).toBeInTheDocument();
+
+    await user.keyboard('{Escape}');
+    expect(queryByText('Dec 24, 4:40 p.m.')).not.toBeInTheDocument();
+    expect(trigger).toHaveFocus();
   });
 
   it('allows for not passing in a system timezone', () => {

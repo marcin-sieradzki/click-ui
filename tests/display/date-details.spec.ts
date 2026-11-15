@@ -9,9 +9,9 @@ const { describe, use } = it;
 const harnessLocator = '[data-testid="date-details-harness"]';
 const contentLocator = '[data-radix-popper-content-wrapper]';
 
-// The trigger is the wrapping `<div>` inside `<Popover.Trigger asChild>` — the
-// only direct-child element of the harness (the popover content mounts in a
-// portal elsewhere).
+// The component's root `<div>` wraps the trigger button — it is the only
+// direct-child element of the harness (the popover content mounts in a portal
+// elsewhere).
 const triggerLocator = `${harnessLocator} > div`;
 
 // Popover has no open/close animation, but give the portal a beat to mount.
@@ -45,18 +45,20 @@ describe('DateDetails Visual Regression', () => {
     });
 
     // The trigger reuses the Link component for its styling, but the trigger is
-    // a popover button — not a navigation link. It renders as a non-anchor
-    // element (no `href`, no link role) so assistive tech doesn't announce a
-    // link whose activation opens a popover instead of navigating. Guards that
-    // no anchor is emitted and that the reused Link styling still resolves.
-    it('trigger renders link styling without an anchor element', async ({ page }) => {
+    // a popover button — not a navigation link. It renders as a native button
+    // (no `href`, no link role) so assistive tech doesn't announce a link whose
+    // activation opens a popover instead of navigating. Guards that no anchor
+    // is emitted and that the reused Link styling still resolves.
+    it('trigger renders link styling on a button, without an anchor element', async ({
+      page,
+    }) => {
       await page.goto(getStoryUrl('display-datedetails--trigger', 'light'), {
         waitUntil: 'networkidle',
       });
       const trigger = page.locator(triggerLocator);
       await expect(trigger).toBeVisible({ timeout: 10000 });
       await expect(trigger.locator('a')).toHaveCount(0);
-      const link = trigger.locator('span').first();
+      const link = page.getByRole('button', { name: '5 minutes ago' });
       await expect(link).toHaveCSS('color', 'rgb(67, 126, 239)');
       await expect(link).toHaveCSS('font-weight', '500');
       await expect(link).toHaveCSS('font-size', '12px');

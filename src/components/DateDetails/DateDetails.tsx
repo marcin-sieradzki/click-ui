@@ -34,6 +34,7 @@ const formatDateDetails = (date: Dayjs, timezone?: string): string => {
 };
 
 import { DateDetailsProps } from './DateDetails.types';
+import styles from './DateDetails.module.css';
 
 const fallbackSystemTimeZone = 'America/New_York';
 
@@ -59,21 +60,25 @@ export const DateDetails = ({
 
   return (
     <Popover>
-      <Popover.Trigger>
-        <Link
-          component="span"
-          size="sm"
-          weight="medium"
-        >
-          <Text
-            component="span"
-            size={size}
-            weight={weight}
+      <div className={styles['date-details']}>
+        <Popover.Trigger asChild>
+          <Link
+            component="button"
+            type="button"
+            className={styles['date-details__trigger']}
+            size="sm"
+            weight="medium"
           >
-            {dayjs.utc(date).fromNow()}
-          </Text>
-        </Link>
-      </Popover.Trigger>
+            <Text
+              component="span"
+              size={size}
+              weight={weight}
+            >
+              {dayjs.utc(date).fromNow()}
+            </Text>
+          </Link>
+        </Popover.Trigger>
+      </div>
       <Popover.Content
         side={side}
         showArrow
